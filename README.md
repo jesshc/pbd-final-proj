@@ -13,12 +13,12 @@ This project processes the NYPD Calls for Service dataset using NYU Dataproc wit
 ### Directory structure
 
 - `/data_ingest`
-  - DataIngestInstructions.md — instructions for uploading the raw CSV into HDFS on NYU Dataproc
+  - DataIngestInstructions.md — instructions for uploading the raw dataset (.CSV file) into HDFS on NYU Dataproc
 - `/profiling_code`
-  - CountRecs.scala — raw data profiling and validation on the ingested CSV
+  - CountRecs.scala — raw data profiling and validation on the ingested dataset
 - `/etl_code`
   - Clean.scala — Stage 1 cleaning: deduplication, type conversion, bad row removal, time feature creation, and parquet output to HDFS
-  - CleanStage2.scala — Stage 2 cleaning: filters only CIP incidents, removes unrealistic response times, and writes a second cleaned parquet dataset to HDFS
+  - CleanStage2.scala — Stage 2 cleaning: filters only Crime-In-Progress (CIP) incidents, removes unrealistic response times, and writes a second cleaned parquet dataset to HDFS
   - CleanStage3.scala — Stage 3 cleaning: date/timestamp formatting, text normalization, and time-to-seconds conversion for numerical analysis
 - `/ana_code`
   - AnalysisPart0.scala — initial data analysis: mean/median/mode calculations and descriptive statistics
@@ -29,7 +29,7 @@ This project processes the NYPD Calls for Service dataset using NYU Dataproc wit
   - VisualizationPart2.py — generates Part 2 charts from saved parquet outputs
   - VisualizationPart3.py — generates Part 3 charts from saved parquet outputs
 - `/screenshots`
-  - contains image examples of analysis and visualization outputs
+  - contains images of output dataframes from the analysis code and output graphs of visualization code
 
 ---
 
@@ -62,7 +62,7 @@ Run the profiling code first to understand raw data quality.
 Connect to your Dataproc instance via the Google Cloud web SSH interface, then run:
 
 ```bash
-spark-shell --deploy-mode client -i /home/<your-user>/jhc10024-project/profiling_code/CountRecs.scala
+spark-shell --deploy-mode client -i ./jhc10024-project/profiling_code/CountRecs.scala
 ```
 
 ---
@@ -91,7 +91,7 @@ After profiling, run ETL cleaning in 3 stages.
 ### Run
 
 ```bash
-spark-shell --deploy-mode client -i /home/<your-user>/jhc10024-project/etl_code/Clean.scala
+spark-shell --deploy-mode client -i ./jhc10024-project/etl_code/Clean.scala
 ```
 
 ### Stage 2
@@ -109,7 +109,7 @@ spark-shell --deploy-mode client -i /home/<your-user>/jhc10024-project/etl_code/
 ### Run
 
 ```bash
-spark-shell --deploy-mode client -i /home/<your-user>/jhc10024-project/etl_code/CleanStage2.scala
+spark-shell --deploy-mode client -i ./jhc10024-project/etl_code/CleanStage2.scala
 ```
 
 ### Stage 3
@@ -128,7 +128,7 @@ spark-shell --deploy-mode client -i /home/<your-user>/jhc10024-project/etl_code/
 ### Run
 
 ```bash
-spark-shell --deploy-mode client -i /home/<your-user>/jhc10024-project/etl_code/CleanStage3.scala
+spark-shell --deploy-mode client -i ./jhc10024-project/etl_code/CleanStage3.scala
 ```
 
 ---
@@ -183,26 +183,26 @@ Analysis scripts read cleaned HDFS datasets and produce summary data frames.
 ### Run on Dataproc
 
 ```bash
-spark-shell --deploy-mode client -i /home/<your-user>/jhc10024-project/ana_code/AnalysisPart0.scala
-spark-shell --deploy-mode client -i /home/<your-user>/jhc10024-project/ana_code/AnalysisPart1.scala
-spark-shell --deploy-mode client -i /home/<your-user>/jhc10024-project/ana_code/AnalysisPart2.scala
-spark-shell --deploy-mode client -i /home/<your-user>/jhc10024-project/ana_code/AnalysisPart3.scala
+spark-shell --deploy-mode client -i ./jhc10024-project/ana_code/AnalysisPart0.scala
+spark-shell --deploy-mode client -i ./jhc10024-project/ana_code/AnalysisPart1.scala
+spark-shell --deploy-mode client -i ./jhc10024-project/ana_code/AnalysisPart2.scala
+spark-shell --deploy-mode client -i ./jhc10024-project/ana_code/AnalysisPart3.scala
 ```
 
 ---
 
 ## Step 4.5: Download Analysis Results from HDFS to Local Dataproc Server
 
-Before running the Python visualization scripts, you need to download the saved parquet files 
+Before running the Python visualization scripts, you need to download the saved parquet files
 from HDFS to your local filesystem in your home directory.
 
 ### Download commands
 
-From your Dataproc instance, run:
+From your Dataproc instance:
+
+Go to `/jhc10024-project/ana_code` folder. Then run:
 
 ```bash
-cd /home/<your-user>/jhc10024-project/ana_code
-
 # Download Part 1 analysis results
 hdfs dfs -get /user/jhc10024_nyu_edu/FinalProject/AnalysisOutputs/Part1 <your-directory>/Part1
 
@@ -217,8 +217,9 @@ hdfs dfs -get /user/jhc10024_nyu_edu/FinalProject/AnalysisOutputs/Part3 <your-di
 
 ## Step 5: Visualization
 
-Visualization scripts generate final images from saved parquet outputs. 
-Before running the Python visualization scripts, make sure you are in `<your-directory>`, the parent folder that contains the `Part1`, `Part2`, and `Part3` directories.
+Visualization scripts generate final images from saved parquet outputs.
+Before running the Python visualization scripts, make sure you are in `<your-directory>`,
+the parent folder that contains the `Part1`, `Part2`, and `Part3` directories from step 4.5.
 
 ### Files
 
@@ -242,8 +243,9 @@ Before running the Python visualization scripts, make sure you are in `<your-dir
 
 From the local Python environment:
 
+Make sure your current location is in `/jhc10024-project/ana_code`. Then run:
+
 ```bash
-cd /home/<your-user>/jhc10024-project/ana_code
 python3 VisualizationPart1.py
 python3 VisualizationPart2.py
 python3 VisualizationPart3.py
@@ -268,5 +270,5 @@ python3 VisualizationPart3.py
     - `hdfs:///user/jhc10024_nyu_edu/FinalProject/AnalysisOutputs/Part1`
     - `hdfs:///user/jhc10024_nyu_edu/FinalProject/AnalysisOutputs/Part2`
     - `hdfs:///user/jhc10024_nyu_edu/FinalProject/AnalysisOutputs/Part3`
-- Visualization graphs (.png files) are saved in the same directory as where you run the VisualizationPart#.py scripts 
+- Visualization graphs (.png files) are saved in the same directory as where you run the VisualizationPart#.py scripts
   (pre-generated graphs are saved in the `/screenshots` directory):
