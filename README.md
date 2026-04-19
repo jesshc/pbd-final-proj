@@ -135,7 +135,7 @@ spark-shell --deploy-mode client -i ./jhc10024-project/etl_code/CleanStage3.scal
 
 ## Step 4: Analysis
 
-Analysis scripts read cleaned HDFS datasets and produce summary data frames.
+The following analysis scripts read cleaned HDFS datasets and produce summary data frames.
 
 ### `/ana_code/AnalysisPart0.scala`
 
@@ -149,33 +149,30 @@ Analysis scripts read cleaned HDFS datasets and produce summary data frames.
 
 ### `/ana_code/AnalysisPart1.scala`
 
-- Reads HDFS parquet input from:
-  - `hdfs:///user/jhc10024_nyu_edu/FinalProject/nypd_cfs_cleaned_2`
+- Reads HDFS parquet input from: `hdfs:///user/jhc10024_nyu_edu/FinalProject/nypd_cfs_cleaned_2`
 - Performs:
-  - Borough-level response time stats
-  - Incident-type (`RADIO_CODE` / CIP) response statistics
-  - Precinct-level ranking of fastest/slower precincts
+  - Borough-level response time analysis
+  - Response time analysis by Incident-type (`RADIO_CODE` / CIP)
+  - Response time ranking of fastest/slowest precincts
 - Outputs results to console and saves results to HDFS in the following locations:
   - `hdfs:///user/jhc10024_nyu_edu/FinalProject/AnalysisOutputs/Part1/dfBoroughStats`
   - `hdfs:///user/jhc10024_nyu_edu/FinalProject/AnalysisOutputs/Part1/dfBoroughResponse`
   - `hdfs:///user/jhc10024_nyu_edu/FinalProject/AnalysisOutputs/Part1/dfPrecinctStats`
   - `hdfs:///user/jhc10024_nyu_edu/FinalProject/AnalysisOutputs/Part1/dfPrecinctResponseRanked`
 
-> Note: the code currently expects cleaned input at `nypd_cfs_cleaned_2`. If your ETL output is only available at `nypd_cfs_cleaned_1`, update the path in the script or rename the HDFS folder accordingly.
-
 ### `/ana_code/AnalysisPart2.scala`
 
-- Reads the same cleaned HDFS dataset
-- Computes response time, dispatch delay, and travel time by severity level
+- Reads HDFS parquet input from: `hdfs:///user/jhc10024_nyu_edu/FinalProject/nypd_cfs_cleaned_2`
+- Computes response time, dispatch delay, and travel time by incident severity level (CIP_JOBS)
 - Outputs results to console and saves results to HDFS in the following locations:
   - `hdfs:///user/jhc10024_nyu_edu/FinalProject/AnalysisOutputs/Part2/dfCIPStats`
 
 ### `/ana_code/AnalysisPart3.scala`
 
-- Reads the same cleaned HDFS dataset
+- Reads HDFS parquet input from: `hdfs:///user/jhc10024_nyu_edu/FinalProject/nypd_cfs_cleaned_2`
 - Computes hourly response statistics for:
-  - `NON CRITICAL`
-  - high severity (`SERIOUS` + `CRITICAL`)
+  - non critical incidents (CIP_JOBS = ‘NON CRITICAL’)
+  - high severity incidents (CIP_JOBS = ‘CRITICAL’ or ‘SERIOUS’)
 - Outputs results to console and saves results to HDFS in the following locations:
   - `hdfs:///user/jhc10024_nyu_edu/FinalProject/AnalysisOutputs/Part3/dfHourlyStatsNonCritical`
   - `hdfs:///user/jhc10024_nyu_edu/FinalProject/AnalysisOutputs/Part3/dfHourlyStatsHighSeverity`
